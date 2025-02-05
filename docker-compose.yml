@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # Servicio de la aplicación
+  app:
+    build:
+      context: .  # El contexto de la construcción, que es el directorio actual
+    image: examen-app:latest  # Nombre de la imagen
+    container_name: examen_app_container  # Nombre del contenedor
+    ports:
+      - "8080:8080"  # Expone el puerto 8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/examenesdb  # URL de conexión a la base de datos
+      - SPRING_DATASOURCE_USERNAME=root  # Usuario de la base de datos
+      - SPRING_DATASOURCE_PASSWORD=root  # Contraseña de la base de datos (debe coincidir con la de Docker)
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update  # Configuración de Hibernate
+      - SPRING_JPA_SHOW_SQL=true  # Mostrar consultas SQL
+    depends_on:
+      - db  # Indica que la app depende del servicio db
+
+  # Servicio de la base de datos MySQL
+  db:
+    image: mysql:8.0  # Usamos la imagen oficial de MySQL
+    container_name: examen_db_container  # Nombre del contenedor de la base de datos
+    environment:
+      MYSQL_ROOT_PASSWORD: root  # Contraseña del usuario root de MySQL
+      MYSQL_DATABASE: examenesdb  # Nombre de la base de datos
+    ports:
+      - "3306:3306"  # Exponer el puerto 3306 (por defecto de MySQL)
+    volumes:
+      - db_data:/var/lib/mysql  # Persistir los datos de la base de datos
+
+# Volúmenes persistentes
+volumes:
+  db_data:
+    driver: local  # Usamos un volumen local para persistir los datos de la base de datos
